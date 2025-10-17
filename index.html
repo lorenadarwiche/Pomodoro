@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pomodoro</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app">
+      <header class="app__header">
+        <h1 class="app__title">Pomodoro</h1>
+        <button id="open-settings" class="btn btn--ghost" aria-label="Open settings">⚙️</button>
+      </header>
+
+      <section class="timer" aria-live="polite">
+        <div class="timer__mode" id="mode-label">Work</div>
+        <div class="timer__display" id="time-display">25:00</div>
+        <div class="timer__controls">
+          <button id="start-pause" class="btn">Start</button>
+          <button id="reset" class="btn btn--ghost">Reset</button>
+          <button id="skip" class="btn btn--ghost">Skip</button>
+        </div>
+        <div class="timer__progress" id="progress" aria-hidden="true"></div>
+      </section>
+
+      <section class="session-info">
+        <div>Cycle: <span id="cycle-count">1</span> / <span id="cycles-per-round">4</span></div>
+        <div>Round: <span id="round-count">1</span></div>
+      </section>
+    </main>
+
+    <dialog id="settings-dialog">
+      <form method="dialog" class="settings">
+        <h2>Settings</h2>
+        <label>
+          Work (minutes)
+          <input id="setting-work" type="number" min="1" max="180" value="25">
+        </label>
+        <label>
+          Short Break (minutes)
+          <input id="setting-short" type="number" min="1" max="60" value="5">
+        </label>
+        <label>
+          Long Break (minutes)
+          <input id="setting-long" type="number" min="1" max="60" value="15">
+        </label>
+        <label>
+          Cycles per Round
+          <input id="setting-cycles" type="number" min="1" max="12" value="4">
+        </label>
+        <label>
+          Theme
+          <select id="setting-theme">
+            <option value="violet">Violet (default)</option>
+            <option value="tomato">Tomato</option>
+            <option value="ocean">Ocean</option>
+            <option value="light">Light</option>
+            <option value="forest">Forest</option>
+            <option value="sunset">Sunset</option>
+            <option value="rose">Rose</option>
+            <option value="midnight">Midnight</option>
+          </select>
+        </label>
+        <label>
+          Ambient Intensity
+          <input id="setting-ambient-intensity" type="range" min="0" max="1" step="0.05" value="0.12">
+        </label>
+        <label>
+          Ambient Speed
+          <input id="setting-ambient-speed" type="range" min="0.5" max="3" step="0.1" value="1">
+        </label>
+        <label class="settings__row">
+          <input id="setting-notify" type="checkbox"> Enable desktop notifications
+        </label>
+        <menu class="settings__menu">
+          <button value="cancel" class="btn btn--ghost">Cancel</button>
+          <button id="save-settings" value="default" class="btn">Save</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <!-- Mini YouTube player dock -->
+    <aside class="yt-dock" aria-label="YouTube player">
+      <div class="yt-dock__header">
+        <span class="yt-dock__title">Lo-fi Playlist</span>
+      </div>
+      <div class="yt-dock__body">
+        <div id="yt-player" class="yt-dock__player" aria-hidden="false"></div>
+        <div class="yt-dock__controls">
+          <button id="yt-play-pause" class="btn btn--ghost" aria-label="Play or pause">Pause</button>
+        </div>
+      </div>
+    </aside>
+
+    <script src="app.js" defer></script>
+  </body>
+  </html>
