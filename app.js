@@ -47,6 +47,7 @@ class PomodoroTimer {
     this.round = 1;
     this.isRunning = false;
     this.startedAt = null; // epoch ms when started or resumed
+    this.endAt = null; // epoch ms when the current session should end (when running)
     this.remainingMs = this._modeToMs(this.mode);
     this._intervalId = null;
     this._lastTick = null;
@@ -59,6 +60,8 @@ class PomodoroTimer {
     // Re-initialize current mode duration but keep progress only if running was paused? Simpler: reset time for clarity
     this.remainingMs = this._modeToMs(this.mode);
     if (preservedRunning) this.start();
+    // Ensure UI reflects new settings immediately even when paused
+    this._emit(true);
   }
 
   _modeToMs(mode) {
@@ -75,6 +78,8 @@ class PomodoroTimer {
     this.isRunning = true;
     const now = Date.now();
     this.startedAt = now;
+    // If resuming, remainingMs holds the correct remaining. Compute absolute end time.
+    this.endAt = now + this.remainingMs;
     this._lastTick = now;
     this._ensureTicker();
   }
@@ -82,6 +87,12 @@ class PomodoroTimer {
   pause() {
     if (!this.isRunning) return;
     this.isRunning = false;
+    // On pause, lock in the remaining time based on endAt
+    if (this.endAt !== null) {
+      const now = Date.now();
+      this.remainingMs = Math.max(0, this.endAt - now);
+    }
+    this.endAt = null;
     if (this._intervalId !== null) {
       clearInterval(this._intervalId);
       this._intervalId = null;
@@ -91,6 +102,8 @@ class PomodoroTimer {
   reset() {
     this.pause();
     this.remainingMs = this._modeToMs(this.mode);
+    this.startedAt = null;
+    this.endAt = null;
   }
 
   skip() {
@@ -102,9 +115,11 @@ class PomodoroTimer {
     this._intervalId = setInterval(() => {
       if (!this.isRunning) return;
       const now = Date.now();
-      const delta = Math.max(0, now - this._lastTick);
       this._lastTick = now;
-      this.remainingMs = Math.max(0, this.remainingMs - delta);
+      // When running, compute remaining from absolute end time for accuracy
+      if (this.endAt !== null) {
+        this.remainingMs = Math.max(0, this.endAt - now);
+      }
       if (this.remainingMs === 0) {
         this._onComplete();
         return;
@@ -135,6 +150,16 @@ class PomodoroTimer {
       this.mode = Mode.Work;
     }
     this.remainingMs = this._modeToMs(this.mode);
+    // If we were running, start the next session immediately with a fresh end time
+    if (this.isRunning) {
+      const now = Date.now();
+      this.startedAt = now;
+      this.endAt = now + this.remainingMs;
+      this._ensureTicker();
+    } else {
+      this.startedAt = null;
+      this.endAt = null;
+    }
     this._emit(true);
   }
 
@@ -397,6 +422,8 @@ saveSettingsBtn.addEventListener("click", (e) => {
   applyTheme(next.theme);
   applyAmbient(next.ambientIntensity, next.ambientSpeed);
   timer.setSettings(next);
+  // Force an immediate repaint to reflect new durations
+  timer._emit(true);
   settingsDialog.close();
 });
 
