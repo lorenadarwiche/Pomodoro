@@ -254,6 +254,17 @@ function applyTheme(theme) {
   const allowed = new Set(["violet", "tomato", "ocean", "light", "forest", "sunset", "rose", "midnight"]);
   const t = allowed.has(theme) ? theme : "violet";
   document.body.setAttribute("data-theme", t);
+  
+  // Force repaint for mobile browsers - critical for iOS Safari and Chrome
+  void document.body.offsetHeight;
+  
+  // Ensure the theme is re-applied after a short delay for mobile
+  if (typeof window !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    setTimeout(() => {
+      document.body.setAttribute("data-theme", t);
+      void document.body.offsetHeight;
+    }, 10);
+  }
 }
 
 function applyAmbient(intensity, speed) {
