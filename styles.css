@@ -107,8 +107,12 @@ body {
   background: radial-gradient(1200px 800px at 20% 0%, #0a1020, var(--bg)),
               conic-gradient(from 180deg at 80% 10%, rgba(124,58,237,0.15), rgba(56,189,248,0.12), rgba(34,211,238,0.1), rgba(124,58,237,0.15));
   background-blend-mode: screen, normal;
+  background-attachment: fixed; /* Ensure proper rendering on mobile */
   position: relative;
   overflow-x: hidden;
+  min-height: 100vh; /* Ensure full viewport coverage on mobile */
+  -webkit-backface-visibility: hidden; /* Fix mobile rendering issues */
+  backface-visibility: hidden;
 }
 
 /* Ambient, subtle animated overlay for calming effect */
@@ -123,6 +127,9 @@ body::before {
   filter: blur(40px) saturate(120%);
   transform: rotate(0deg);
   animation: ambientRotate calc(var(---ambient-duration, 160s) / var(--ambient-speed, 1)) linear infinite;
+  will-change: transform; /* Mobile performance optimization */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 /* Secondary gentle drift layer for extra calmness */
@@ -139,6 +146,9 @@ body::after {
   background: linear-gradient(90deg, var(--accent), transparent 30%, var(--accent-2) 60%, transparent 90%);
   transform: translateX(0);
   animation: ambientDrift calc(140s / var(--ambient-speed, 1)) ease-in-out infinite alternate;
+  will-change: transform; /* Mobile performance optimization */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 @keyframes ambientRotate {
@@ -156,6 +166,7 @@ body[data-theme="violet"] {
   background: radial-gradient(1200px 800px at 20% 0%, #0b0f2a, var(--bg)),
               conic-gradient(from 200deg at 70% 10%, rgba(124,58,237,0.18), rgba(56,189,248,0.12), rgba(34,211,238,0.10), rgba(124,58,237,0.18));
   background-blend-mode: screen, normal;
+  background-attachment: fixed;
 }
 body[data-theme="violet"]::before {
   background: radial-gradient(60% 60% at 50% 50%, rgba(124,58,237,0.35), rgba(56,189,248,0.22) 40%, rgba(0,0,0,0) 70%);
@@ -166,6 +177,7 @@ body[data-theme="tomato"] {
   background: radial-gradient(1100px 720px at 20% -10%, #2a0b0b, var(--bg)),
               conic-gradient(from 160deg at 80% 0%, rgba(239,68,68,0.20), rgba(251,113,133,0.12), rgba(253,164,175,0.10), rgba(239,68,68,0.20));
   background-blend-mode: screen, normal;
+  background-attachment: fixed;
 }
 body[data-theme="tomato"]::before {
   background: radial-gradient(60% 60% at 50% 50%, rgba(239,68,68,0.35), rgba(251,113,133,0.22) 40%, rgba(0,0,0,0) 70%);
@@ -176,6 +188,7 @@ body[data-theme="ocean"] {
   background: radial-gradient(1200px 900px at 20% -10%, #071a1e, var(--bg)),
               conic-gradient(from 220deg at 80% 0%, rgba(14,165,233,0.22), rgba(34,211,238,0.14), rgba(56,189,248,0.12), rgba(14,165,233,0.22));
   background-blend-mode: screen, normal;
+  background-attachment: fixed;
 }
 body[data-theme="ocean"]::before {
   background: radial-gradient(60% 60% at 50% 50%, rgba(14,165,233,0.35), rgba(34,211,238,0.22) 40%, rgba(0,0,0,0) 70%);
@@ -186,6 +199,7 @@ body[data-theme="light"] {
   background: radial-gradient(1200px 900px at 20% -10%, #ffffff, var(--bg)),
               conic-gradient(from 200deg at 80% 0%, rgba(14,165,233,0.10), rgba(34,197,94,0.10), rgba(255,255,255,0.6));
   background-blend-mode: lighten, normal;
+  background-attachment: fixed;
 }
 body[data-theme="light"]::before {
   background: radial-gradient(60% 60% at 50% 50%, rgba(14,165,233,0.25), rgba(34,197,94,0.18) 40%, rgba(255,255,255,0) 70%);
@@ -196,6 +210,7 @@ body[data-theme="forest"] {
   background: radial-gradient(1100px 700px at 20% -10%, #0a1b14, var(--bg)),
               conic-gradient(from 200deg at 70% 0%, rgba(34,197,94,0.18), rgba(16,185,129,0.12), rgba(134,239,172,0.10), rgba(34,197,94,0.18));
   background-blend-mode: screen, normal;
+  background-attachment: fixed;
 }
 body[data-theme="forest"]::before {
   background: radial-gradient(60% 60% at 50% 50%, rgba(34,197,94,0.35), rgba(16,185,129,0.20) 40%, rgba(0,0,0,0) 70%);
@@ -206,6 +221,7 @@ body[data-theme="sunset"] {
   background: radial-gradient(1100px 720px at 20% -10%, #1a1010, var(--bg)),
               conic-gradient(from 150deg at 75% 0%, rgba(245,158,11,0.20), rgba(251,113,133,0.16), rgba(253,164,175,0.12), rgba(245,158,11,0.20));
   background-blend-mode: screen, normal;
+  background-attachment: fixed;
 }
 body[data-theme="sunset"]::before {
   background: radial-gradient(60% 60% at 50% 50%, rgba(245,158,11,0.32), rgba(251,113,133,0.20) 40%, rgba(0,0,0,0) 70%);
@@ -216,6 +232,7 @@ body[data-theme="rose"] {
   background: radial-gradient(1100px 720px at 20% -10%, #1b0f18, var(--bg)),
               conic-gradient(from 180deg at 75% 0%, rgba(225,29,72,0.22), rgba(251,113,133,0.14), rgba(253,164,175,0.10), rgba(225,29,72,0.22));
   background-blend-mode: screen, normal;
+  background-attachment: fixed;
 }
 body[data-theme="rose"]::before {
   background: radial-gradient(60% 60% at 50% 50%, rgba(225,29,72,0.32), rgba(251,113,133,0.20) 40%, rgba(0,0,0,0) 70%);
@@ -226,6 +243,7 @@ body[data-theme="midnight"] {
   background: radial-gradient(1300px 900px at 20% -10%, #050914, var(--bg)),
               conic-gradient(from 220deg at 80% 0%, rgba(34,211,238,0.18), rgba(56,189,248,0.14), rgba(125,211,252,0.10), rgba(34,211,238,0.18));
   background-blend-mode: screen, normal;
+  background-attachment: fixed;
 }
 body[data-theme="midnight"]::before {
   background: radial-gradient(60% 60% at 50% 50%, rgba(34,211,238,0.30), rgba(56,189,248,0.20) 40%, rgba(0,0,0,0) 70%);
