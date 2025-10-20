@@ -254,19 +254,17 @@ function applyTheme(theme) {
   const allowed = new Set(["violet", "tomato", "ocean", "light", "forest", "sunset", "rose", "midnight"]);
   const t = allowed.has(theme) ? theme : "violet";
   
-  // Force a reflow on mobile by temporarily removing and re-adding the attribute
-  // This ensures mobile browsers properly apply the new theme styles
+  // Remove old theme attribute
   document.body.removeAttribute("data-theme");
   
-  // Force reflow/repaint - critical for mobile browsers
+  // Force reflow to ensure styles are recalculated (critical for mobile)
   void document.body.offsetHeight;
   
+  // Apply new theme
   document.body.setAttribute("data-theme", t);
   
-  // Additional mobile fix: force style recalculation
-  document.body.style.display = 'none';
+  // Force one more reflow to ensure mobile browsers apply the new styles
   void document.body.offsetHeight;
-  document.body.style.display = '';
 }
 
 function applyAmbient(intensity, speed) {
