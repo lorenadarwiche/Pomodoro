@@ -5,18 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Pomodoro</title>
     <link rel="stylesheet" href="styles.css">
-    <script>
-      // Apply theme immediately to prevent flash on mobile
-      (function() {
-        try {
-          const stored = localStorage.getItem("pomodoro:settings:v1");
-          const theme = stored ? JSON.parse(stored).theme || "violet" : "violet";
-          document.documentElement.setAttribute("data-theme", theme);
-        } catch (e) {
-          document.documentElement.setAttribute("data-theme", "violet");
-        }
-      })();
-    </script>
   </head>
   <body>
     <main class="app">
