@@ -16,6 +16,9 @@ const defaultSettings = {
   theme: "violet",
   ambientIntensity: 0.12,
   ambientSpeed: 1,
+  alarmSound: "bell",
+  alarmVolume: 0.5,
+  autoStart: false,
 };
 
 function loadSettings() {
@@ -150,13 +153,17 @@ class PomodoroTimer {
       this.mode = Mode.Work;
     }
     this.remainingMs = this._modeToMs(this.mode);
-    // If we were running, start the next session immediately with a fresh end time
-    if (this.isRunning) {
+    
+    // Auto-start next session if enabled
+    const shouldAutoStart = this.settings.autoStart;
+    if (shouldAutoStart) {
       const now = Date.now();
+      this.isRunning = true;
       this.startedAt = now;
       this.endAt = now + this.remainingMs;
       this._ensureTicker();
     } else {
+      this.isRunning = false;
       this.startedAt = null;
       this.endAt = null;
     }
@@ -180,22 +187,123 @@ class PomodoroTimer {
   }
 }
 
-// --- Simple beep using Web Audio (no assets needed) ---
-function beep() {
+// --- Enhanced alarm sounds using Web Audio (no assets needed) ---
+function playAlarmSound(soundType = "bell", volume = 0.5) {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.type = "sine";
-    o.frequency.value = 880;
-    o.connect(g);
-    g.connect(ctx.destination);
-    g.gain.setValueAtTime(0.0001, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.1, ctx.currentTime + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25);
-    o.start();
-    o.stop(ctx.currentTime + 0.3);
+    const masterGain = ctx.createGain();
+    masterGain.gain.value = volume;
+    masterGain.connect(ctx.destination);
+
+    if (soundType === "bell") {
+      // Pleasant bell sound with harmonics
+      const times = [0, 0.15, 0.3];
+      const freqs = [880, 1320, 1760];
+      times.forEach((time, i) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.frequency.value = freqs[i];
+        o.type = "sine";
+        o.connect(g);
+        g.connect(masterGain);
+        g.gain.setValueAtTime(0, ctx.currentTime + time);
+        g.gain.linearRampToValueAtTime(0.3, ctx.currentTime + time + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + time + 0.8);
+        o.start(ctx.currentTime + time);
+        o.stop(ctx.currentTime + time + 0.85);
+      });
+    } else if (soundType === "chime") {
+      // Soft chime with multiple tones
+      const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+      notes.forEach((freq, i) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.frequency.value = freq;
+        o.type = "sine";
+        o.connect(g);
+        g.connect(masterGain);
+        const startTime = ctx.currentTime + (i * 0.1);
+        g.gain.setValueAtTime(0, startTime);
+        g.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
+        g.gain.exponentialRampToValueAtTime(0.001, startTime + 1.2);
+        o.start(startTime);
+        o.stop(startTime + 1.3);
+      });
+    } else if (soundType === "digital") {
+      // Digital alarm sound
+      for (let i = 0; i < 3; i++) {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.frequency.value = 800;
+        o.type = "square";
+        o.connect(g);
+        g.connect(masterGain);
+        const startTime = ctx.currentTime + (i * 0.25);
+        g.gain.setValueAtTime(0.15, startTime);
+        g.gain.setValueAtTime(0, startTime + 0.15);
+        o.start(startTime);
+        o.stop(startTime + 0.15);
+      }
+    } else if (soundType === "soft") {
+      // Gentle rising tone
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "sine";
+      o.frequency.setValueAtTime(400, ctx.currentTime);
+      o.frequency.linearRampToValueAtTime(800, ctx.currentTime + 0.5);
+      o.connect(g);
+      g.connect(masterGain);
+      g.gain.setValueAtTime(0, ctx.currentTime);
+      g.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.1);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+      o.start();
+      o.stop(ctx.currentTime + 0.85);
+    } else if (soundType === "nature") {
+      // Bird-like chirp
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "sine";
+      o.frequency.setValueAtTime(2000, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(3000, ctx.currentTime + 0.05);
+      o.frequency.exponentialRampToValueAtTime(2500, ctx.currentTime + 0.15);
+      o.connect(g);
+      g.connect(masterGain);
+      g.gain.setValueAtTime(0.2, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      o.start();
+      o.stop(ctx.currentTime + 0.35);
+      // Second chirp
+      setTimeout(() => {
+        const o2 = ctx.createOscillator();
+        const g2 = ctx.createGain();
+        o2.type = "sine";
+        o2.frequency.setValueAtTime(2200, ctx.currentTime);
+        o2.frequency.exponentialRampToValueAtTime(3200, ctx.currentTime + 0.05);
+        o2.connect(g2);
+        g2.connect(masterGain);
+        g2.gain.setValueAtTime(0.2, ctx.currentTime);
+        g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+        o2.start();
+        o2.stop(ctx.currentTime + 0.3);
+      }, 200);
+    } else { // beep
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "sine";
+      o.frequency.value = 880;
+      o.connect(g);
+      g.connect(masterGain);
+      g.gain.setValueAtTime(0.0001, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25);
+      o.start();
+      o.stop(ctx.currentTime + 0.3);
+    }
   } catch {}
+}
+
+function beep() {
+  playAlarmSound(currentSettings.alarmSound, currentSettings.alarmVolume);
 }
 
 async function notify(title, body) {
@@ -233,6 +341,10 @@ const settingNotify = document.getElementById("setting-notify");
 const settingTheme = document.getElementById("setting-theme");
 const settingAmbientIntensity = document.getElementById("setting-ambient-intensity");
 const settingAmbientSpeed = document.getElementById("setting-ambient-speed");
+const settingAlarmSound = document.getElementById("setting-alarm-sound");
+const settingAlarmVolume = document.getElementById("setting-alarm-volume");
+const volumeDisplay = document.getElementById("volume-display");
+const settingAutoStart = document.getElementById("setting-auto-start");
 const saveSettingsBtn = document.getElementById("save-settings");
 const ytPlayPauseBtn = document.getElementById("yt-play-pause");
 const ytPlayerContainer = document.getElementById("yt-player");
@@ -249,6 +361,21 @@ settingNotify.checked = Boolean(currentSettings.notifications);
 settingTheme.value = String(currentSettings.theme || "violet");
 settingAmbientIntensity.value = String(currentSettings.ambientIntensity ?? defaultSettings.ambientIntensity);
 settingAmbientSpeed.value = String(currentSettings.ambientSpeed ?? defaultSettings.ambientSpeed);
+settingAlarmSound.value = String(currentSettings.alarmSound || "bell");
+settingAlarmVolume.value = String(currentSettings.alarmVolume ?? 0.5);
+volumeDisplay.textContent = Math.round((currentSettings.alarmVolume ?? 0.5) * 100) + "%";
+settingAutoStart.checked = Boolean(currentSettings.autoStart);
+
+// Update volume display on slider change
+settingAlarmVolume.addEventListener("input", (e) => {
+  const vol = Number(e.target.value);
+  volumeDisplay.textContent = Math.round(vol * 100) + "%";
+});
+
+// Preview alarm sound on selection change
+settingAlarmSound.addEventListener("change", (e) => {
+  playAlarmSound(e.target.value, Number(settingAlarmVolume.value));
+});
 
 function applyTheme(theme) {
   const allowed = new Set(["violet", "tomato", "ocean", "light", "forest", "sunset", "rose", "midnight"]);
@@ -416,6 +543,27 @@ skipBtn.addEventListener("click", () => {
 
 openSettingsBtn.addEventListener("click", () => settingsDialog.showModal());
 
+// Tab switching for settings sidebar
+const settingsTabs = document.querySelectorAll('.settings__tab');
+const settingsPanels = document.querySelectorAll('.settings__panel');
+
+settingsTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const targetPanel = tab.getAttribute('data-tab');
+    
+    // Remove active class from all tabs and panels
+    settingsTabs.forEach(t => t.classList.remove('settings__tab--active'));
+    settingsPanels.forEach(p => p.classList.remove('settings__panel--active'));
+    
+    // Add active class to clicked tab and corresponding panel
+    tab.classList.add('settings__tab--active');
+    const activePanel = document.querySelector(`[data-panel="${targetPanel}"]`);
+    if (activePanel) {
+      activePanel.classList.add('settings__panel--active');
+    }
+  });
+});
+
 saveSettingsBtn.addEventListener("click", (e) => {
   e.preventDefault();
   const next = {
@@ -427,6 +575,9 @@ saveSettingsBtn.addEventListener("click", (e) => {
     theme: String(settingTheme.value || "violet"),
     ambientIntensity: Number(settingAmbientIntensity.value ?? defaultSettings.ambientIntensity),
     ambientSpeed: Number(settingAmbientSpeed.value ?? defaultSettings.ambientSpeed),
+    alarmSound: String(settingAlarmSound.value || "bell"),
+    alarmVolume: Number(settingAlarmVolume.value ?? 0.5),
+    autoStart: Boolean(settingAutoStart.checked),
   };
   currentSettings = next;
   saveSettings(next);

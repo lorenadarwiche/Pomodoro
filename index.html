@@ -32,51 +32,122 @@
 
     <dialog id="settings-dialog">
       <form method="dialog" class="settings">
-        <h2>Settings</h2>
-        <label>
-          Work (minutes)
-          <input id="setting-work" type="number" min="1" max="180" value="25">
-        </label>
-        <label>
-          Short Break (minutes)
-          <input id="setting-short" type="number" min="1" max="60" value="5">
-        </label>
-        <label>
-          Long Break (minutes)
-          <input id="setting-long" type="number" min="1" max="60" value="15">
-        </label>
-        <label>
-          Cycles per Round
-          <input id="setting-cycles" type="number" min="1" max="12" value="4">
-        </label>
-        <label>
-          Theme
-          <select id="setting-theme">
-            <option value="violet">Violet (default)</option>
-            <option value="tomato">Tomato</option>
-            <option value="ocean">Ocean</option>
-            <option value="light">Light</option>
-            <option value="forest">Forest</option>
-            <option value="sunset">Sunset</option>
-            <option value="rose">Rose</option>
-            <option value="midnight">Midnight</option>
-          </select>
-        </label>
-        <label>
-          Ambient Intensity
-          <input id="setting-ambient-intensity" type="range" min="0" max="1" step="0.05" value="0.12">
-        </label>
-        <label>
-          Ambient Speed
-          <input id="setting-ambient-speed" type="range" min="0.5" max="3" step="0.1" value="1">
-        </label>
-        <label class="settings__row">
-          <input id="setting-notify" type="checkbox"> Enable desktop notifications
-        </label>
-        <menu class="settings__menu">
-          <button value="cancel" class="btn btn--ghost">Cancel</button>
-          <button id="save-settings" value="default" class="btn">Save</button>
-        </menu>
+        <!-- Left Sidebar Navigation -->
+        <nav class="settings__sidebar">
+          <h2 class="settings__title">Settings</h2>
+          <button type="button" class="settings__tab settings__tab--active" data-tab="general">General</button>
+          <button type="button" class="settings__tab" data-tab="timers">Timers</button>
+          <button type="button" class="settings__tab" data-tab="sounds">Sounds</button>
+        </nav>
+
+        <!-- Right Content Area -->
+        <div class="settings__content">
+          <!-- General Tab -->
+          <div class="settings__panel settings__panel--active" data-panel="general">
+            <h3 class="settings__panel-title">General Settings</h3>
+            
+            <label>
+              <span class="settings__label-text">Select theme:</span>
+              <select id="setting-theme">
+                <option value="violet">Violet</option>
+                <option value="tomato">Tomato</option>
+                <option value="ocean">Ocean</option>
+                <option value="light">Light</option>
+                <option value="forest">Forest</option>
+                <option value="sunset">Sunset</option>
+                <option value="rose">Rose</option>
+                <option value="midnight">Midnight</option>
+              </select>
+            </label>
+
+            <label>
+              <span class="settings__label-text">Ambient Intensity</span>
+              <input id="setting-ambient-intensity" type="range" min="0" max="1" step="0.05" value="0.12">
+            </label>
+
+            <label>
+              <span class="settings__label-text">Ambient Speed</span>
+              <input id="setting-ambient-speed" type="range" min="0.5" max="3" step="0.1" value="1">
+            </label>
+
+            <label class="settings__checkbox">
+              <input id="setting-notify" type="checkbox">
+              <span class="settings__label-text">Enable desktop notifications</span>
+            </label>
+
+            <label class="settings__checkbox">
+              <input id="setting-auto-start" type="checkbox">
+              <span class="settings__label-text">Auto-start next session</span>
+            </label>
+          </div>
+
+          <!-- Timers Tab -->
+          <div class="settings__panel" data-panel="timers">
+            <h3 class="settings__panel-title">Timer Duration</h3>
+            
+            <div class="settings__timers-grid">
+              <div class="settings__timer-input">
+                <label>
+                  <span class="settings__label-text">Pomodoro</span>
+                  <input id="setting-work" type="number" min="1" max="180" value="25">
+                  <span class="settings__helper-text">minutes</span>
+                </label>
+              </div>
+
+              <div class="settings__timer-input">
+                <label>
+                  <span class="settings__label-text">Short Break</span>
+                  <input id="setting-short" type="number" min="1" max="60" value="5">
+                  <span class="settings__helper-text">minutes</span>
+                </label>
+              </div>
+
+              <div class="settings__timer-input">
+                <label>
+                  <span class="settings__label-text">Long Break</span>
+                  <input id="setting-long" type="number" min="1" max="60" value="15">
+                  <span class="settings__helper-text">minutes</span>
+                </label>
+              </div>
+            </div>
+
+            <label>
+              <span class="settings__label-text">Cycles per Round</span>
+              <input id="setting-cycles" type="number" min="1" max="12" value="4">
+            </label>
+          </div>
+
+          <!-- Sounds Tab -->
+          <div class="settings__panel" data-panel="sounds">
+            <h3 class="settings__panel-title">Sound & Notifications</h3>
+            
+            <label>
+              <span class="settings__label-text">Select alert sound:</span>
+              <select id="setting-alarm-sound">
+                <option value="bell">Bell</option>
+                <option value="chime">Chime</option>
+                <option value="digital">Digital</option>
+                <option value="soft">Soft Alarm</option>
+                <option value="nature">Nature</option>
+                <option value="beep">Simple Beep</option>
+              </select>
+            </label>
+
+            <label>
+              <span class="settings__label-text">Alert volume</span>
+              <div class="settings__volume-control">
+                <input id="setting-alarm-volume" type="range" min="0" max="1" step="0.1" value="0.5">
+                <span id="volume-display">50%</span>
+              </div>
+            </label>
+          </div>
+
+          <!-- Footer Buttons -->
+          <menu class="settings__menu">
+            <button value="cancel" class="btn btn--ghost">Close</button>
+            <button id="save-settings" value="default" class="btn">Save changes</button>
+          </menu>
+        </div>
       </form>
     </dialog>
 
