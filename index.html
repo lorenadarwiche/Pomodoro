@@ -14,19 +14,27 @@
       </header>
 
       <section class="timer" aria-live="polite">
-        <div class="timer__mode" id="mode-label">Work</div>
-        <div class="timer__display" id="time-display">25:00</div>
-        <div class="timer__controls">
-          <button id="start-pause" class="btn">Start</button>
-          <button id="reset" class="btn btn--ghost">Reset</button>
-          <button id="skip" class="btn btn--ghost">Skip</button>
+        <!-- Timer Mode Buttons -->
+        <div class="timer__modes">
+          <button type="button" class="timer__mode-btn timer__mode-btn--active" data-mode="Work">pomodoro</button>
+          <button type="button" class="timer__mode-btn" data-mode="Short Break">short break</button>
+          <button type="button" class="timer__mode-btn" data-mode="Long Break">long break</button>
         </div>
-        <div class="timer__progress" id="progress" aria-hidden="true"></div>
+
+        <!-- Active Timer Display -->
+        <div class="timer__active">
+          <div class="timer__display" id="time-display">25:00</div>
+          <div class="timer__controls">
+            <button id="start-pause" class="btn">Start</button>
+            <button id="reset" class="btn btn--ghost">Reset</button>
+            <button id="skip" class="btn btn--ghost">Skip</button>
+          </div>
+          <div class="timer__progress" id="progress" aria-hidden="true"></div>
+        </div>
       </section>
 
       <section class="session-info">
         <div>Cycle: <span id="cycle-count">1</span> / <span id="cycles-per-round">4</span></div>
-        <div>Round: <span id="round-count">1</span></div>
       </section>
     </main>
 
@@ -144,6 +152,8 @@
 
           <!-- Footer Buttons -->
           <menu class="settings__menu">
+            <button type="button" id="reset-settings" class="btn btn--reset">Reset to defaults</button>
+            <div class="settings__menu-spacer"></div>
             <button value="cancel" class="btn btn--ghost">Close</button>
             <button id="save-settings" value="default" class="btn">Save changes</button>
           </menu>

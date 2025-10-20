@@ -323,6 +323,52 @@ body[data-theme="midnight"] .timer {
   box-shadow: 0 8px 32px rgba(34, 211, 238, 0.2), inset 0 1px 0 rgba(34, 211, 238, 0.1);
 }
 
+/* Timer Mode Buttons */
+.timer__modes {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.timer__mode-btn {
+  appearance: none;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-transform: lowercase;
+  letter-spacing: 0.3px;
+}
+
+.timer__mode-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.timer__mode-btn--active {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.95);
+  color: #1a1a2e;
+}
+
+/* Theme-specific active button for light theme */
+body[data-theme="light"] .timer__mode-btn--active {
+  background: rgba(14, 165, 233, 0.15);
+  border-color: rgba(14, 165, 233, 0.4);
+  color: #0e7490;
+}
+
+.timer__active {
+  text-align: center;
+}
+
 .timer__mode { color: var(--accent); font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; font-size: 12px; }
 .timer__display {
   font-variant-numeric: tabular-nums;
@@ -720,7 +766,7 @@ body[data-theme="midnight"] .settings select { background: rgba(10, 20, 40, 0.35
 
 .settings__menu { 
   display: flex; 
-  justify-content: flex-end; 
+  align-items: center;
   gap: 12px; 
   padding: 20px 32px;
   margin: 0;
@@ -730,9 +776,26 @@ body[data-theme="midnight"] .settings select { background: rgba(10, 20, 40, 0.35
   margin-top: auto;
 }
 
+.settings__menu-spacer {
+  flex: 1;
+}
+
 .settings__menu .btn {
   min-width: 110px;
   padding: 12px 20px;
+}
+
+.btn--reset {
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+  min-width: 140px;
+}
+
+.btn--reset:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.6);
+  color: #f87171;
 }
 
 @media (max-width: 768px) {
@@ -783,6 +846,11 @@ body[data-theme="midnight"] .settings select { background: rgba(10, 20, 40, 0.35
 @media (max-width: 420px) {
   .timer__display { font-size: 52px; }
   
+  .timer__mode-btn {
+    padding: 8px 18px;
+    font-size: 13px;
+  }
+  
   dialog {
     width: 100vw;
     max-width: 100vw;
@@ -810,6 +878,10 @@ body[data-theme="midnight"] .settings select { background: rgba(10, 20, 40, 0.35
   .settings__menu {
     padding: 16px;
     flex-direction: column;
+  }
+  
+  .settings__menu-spacer {
+    display: none;
   }
   
   .settings__menu .btn {

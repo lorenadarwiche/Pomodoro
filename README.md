@@ -35,6 +35,7 @@ Modern sidebar navigation with organized tabs:
 - **General**: Theme selection, ambient controls, notifications, auto-start
 - **Timers**: Pomodoro, Short Break, and Long Break durations, Cycles per round
 - **Sounds**: Alarm sound selection and volume control with instant preview
+- **Reset to defaults**: One-click restore of all original settings
 
 All settings are **automatically saved** to localStorage and persist across sessions.
 
@@ -55,6 +56,7 @@ All settings are **automatically saved** to localStorage and persist across sess
    - Enable auto-start for continuous sessions
    - Fine-tune ambient animations
 4. Click **"Save changes"** to apply
+5. Use **"Reset to defaults"** to instantly restore all original settings
 
 ### Timer Display
 - **Mode indicator**: Shows current mode (Work, Short Break, or Long Break)
@@ -104,7 +106,7 @@ pomodoro/
 ├── index.html        # Main HTML structure
 ├── app.js           # Timer logic, settings, and audio
 ├── styles.css       # All styles including themes
-└── README.md        # This file
+└── README.md
 ```
 
 **Key Architecture**:

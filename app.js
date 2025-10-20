@@ -322,15 +322,14 @@ async function notify(title, body) {
 }
 
 // --- DOM wiring ---
-const modeLabel = document.getElementById("mode-label");
 const timeDisplay = document.getElementById("time-display");
+const modeButtons = document.querySelectorAll('.timer__mode-btn');
 const startPauseBtn = document.getElementById("start-pause");
 const resetBtn = document.getElementById("reset");
 const skipBtn = document.getElementById("skip");
 const progressEl = document.getElementById("progress");
 const cycleCountEl = document.getElementById("cycle-count");
 const cyclesPerRoundEl = document.getElementById("cycles-per-round");
-const roundCountEl = document.getElementById("round-count");
 const openSettingsBtn = document.getElementById("open-settings");
 const settingsDialog = document.getElementById("settings-dialog");
 const settingWork = document.getElementById("setting-work");
@@ -415,12 +414,20 @@ function formatMs(ms) {
 }
 
 function render(state) {
-  modeLabel.textContent = state.mode;
   timeDisplay.textContent = formatMs(state.remainingMs);
   startPauseBtn.textContent = state.isRunning ? "Pause" : "Start";
   cycleCountEl.textContent = String(state.cycleInRound);
-  roundCountEl.textContent = String(state.round);
   cyclesPerRoundEl.textContent = String(currentSettings.cyclesPerRound);
+
+  // Update active mode button
+  modeButtons.forEach(btn => {
+    const btnMode = btn.getAttribute('data-mode');
+    if (btnMode === state.mode) {
+      btn.classList.add('timer__mode-btn--active');
+    } else {
+      btn.classList.remove('timer__mode-btn--active');
+    }
+  });
 
   const pct = 1 - state.remainingMs / state.totalMs;
   progressEl.style.setProperty("--pct", String(pct));
@@ -449,6 +456,27 @@ document.head.appendChild(style);
 // Initial paint
 timer.onChange(render);
 timer._emit(true);
+
+// Mode button click handlers
+modeButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const targetMode = btn.getAttribute('data-mode');
+    
+    // Stop the timer if running
+    if (timer.isRunning) {
+      timer.pause();
+    }
+    
+    // Switch to the selected mode
+    timer.mode = targetMode;
+    timer.remainingMs = timer._modeToMs(targetMode);
+    timer.startedAt = null;
+    timer.endAt = null;
+    
+    // Update UI
+    timer._emit(true);
+  });
+});
 
 // --- YouTube mini player integration ---
 let ytPlayer = null;
@@ -564,8 +592,42 @@ settingsTabs.forEach(tab => {
   });
 });
 
-saveSettingsBtn.addEventListener("click", (e) => {
+// Reset to defaults button
+const resetSettingsBtn = document.getElementById("reset-settings");
+resetSettingsBtn.addEventListener("click", (e) => {
   e.preventDefault();
+  
+  // Reset all inputs to default values
+  settingWork.value = String(defaultSettings.workMinutes);
+  settingShort.value = String(defaultSettings.shortMinutes);
+  settingLong.value = String(defaultSettings.longMinutes);
+  settingCycles.value = String(defaultSettings.cyclesPerRound);
+  settingNotify.checked = Boolean(defaultSettings.notifications);
+  settingTheme.value = String(defaultSettings.theme);
+  settingAmbientIntensity.value = String(defaultSettings.ambientIntensity);
+  settingAmbientSpeed.value = String(defaultSettings.ambientSpeed);
+  settingAlarmSound.value = String(defaultSettings.alarmSound);
+  settingAlarmVolume.value = String(defaultSettings.alarmVolume);
+  volumeDisplay.textContent = Math.round(defaultSettings.alarmVolume * 100) + "%";
+  settingAutoStart.checked = Boolean(defaultSettings.autoStart);
+  
+  // Save and apply defaults
+  currentSettings = { ...defaultSettings };
+  saveSettings(currentSettings);
+  applyTheme(currentSettings.theme);
+  applyAmbient(currentSettings.ambientIntensity, currentSettings.ambientSpeed);
+  timer.setSettings(currentSettings);
+  timer._emit(true);
+  
+  // Play preview sound with default settings
+  playAlarmSound(currentSettings.alarmSound, currentSettings.alarmVolume);
+  
+  // Close settings dialog
+  settingsDialog.close();
+});
+
+// Extract save logic into reusable function
+function saveSettingsChanges() {
   const next = {
     workMinutes: clampInt(settingWork.value, 1, 180, defaultSettings.workMinutes),
     shortMinutes: clampInt(settingShort.value, 1, 60, defaultSettings.shortMinutes),
@@ -587,6 +649,19 @@ saveSettingsBtn.addEventListener("click", (e) => {
   // Force an immediate repaint to reflect new durations
   timer._emit(true);
   settingsDialog.close();
+}
+
+// Save button click handler
+saveSettingsBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  saveSettingsChanges();
+});
+
+// Form submit handler (triggered by Enter key)
+const settingsForm = settingsDialog.querySelector('form');
+settingsForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  saveSettingsChanges();
 });
 
 function clampInt(value, min, max, fallback) {
